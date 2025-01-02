@@ -74,6 +74,18 @@
             color: #999;
         }
 
+        .words_button {
+            width: auto;
+            padding: 6px;
+            font-size: 12px;
+            color: white;
+            background: linear-gradient(45deg, #ff6f61, #ffcc33);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 6px;
+        }
+
         button {
             display: inline-flex;
             align-items: center;
@@ -99,7 +111,7 @@
             width: 36px !important;
             height: 36px !important;
         }
-        #definitions {
+        #definitions, #difficult_words {
             margin-top: 20px;
         }
     </style>
@@ -113,6 +125,7 @@
         <button onclick="convertToAudio()">
             Speak Now <img class="btn-logo" src="https://img.icons8.com/clouds/100/speaker.png" alt="Speaker Icon">
         </button>
+        <div id="difficult_words"></div>
         <div id="definitions"></div>
     </div>
 
@@ -130,7 +143,16 @@
             utterance.voice = voices[36];
 
             speechSynthesis.speak(utterance);
-            getWordDefinitions();
+            
+            let words = text.split(' ').filter(word => word.length >= 4);
+            const DIFFICULTWORDS_DIV = document.getElementById('difficult_words');
+            DIFFICULTWORDS_DIV.innerHTML = '';
+            DIFFICULTWORDS_DIV.innerHTML += '<h5>Difficult Words</h5>';
+            DIFFICULTWORDS_DIV.innerHTML += '<div>';
+            words.forEach(d => {
+                DIFFICULTWORDS_DIV.innerHTML += `<button onclick="getWordDefinitions('${d}')" class='words_button'>${d}</li>`;
+            });
+            DIFFICULTWORDS_DIV.innerHTML += '</div>';
         }
         
         const DICTIONARY_API_BASE_URL =
@@ -146,7 +168,8 @@
                 .flatMap(d => d.definition);
         };
 
-        const getWordDefinitions = () => {
+        const getWordDefinitions = (wd) => {
+            const word = wd;
             const word = document.getElementById('textInput').value;
             if (word == null || word == '') {
                 return alert('Error: You must enter a word to fetch');
@@ -154,7 +177,7 @@
             DEFINITIONS_DIV.innerHTML = '';
             fetchWordDefinitions(word)
                 .then(defintions => {
-                     DEFINITIONS_DIV.innerHTML += '<h5>Meanings</h5>';
+                     DEFINITIONS_DIV.innerHTML += '<h5>Meanings of '${word}'</h5>';
                     DEFINITIONS_DIV.innerHTML += '<ol>';
                     defintions.slice(0, 3).forEach(d => {
                         DEFINITIONS_DIV.innerHTML += `<li>${d}</li>`;
