@@ -99,6 +99,9 @@
             width: 36px !important;
             height: 36px !important;
         }
+        #definitions {
+            margin-top: 20px;
+        }
     </style>
 </head>
 
@@ -110,13 +113,14 @@
         <button onclick="convertToAudio()">
             Speak Now <img class="btn-logo" src="https://img.icons8.com/clouds/100/speaker.png" alt="Speaker Icon">
         </button>
+        <div id="definitions"></div>
     </div>
 
     <script>
         function convertToAudio() {
             const text = document.getElementById('textInput').value;
             if (!text) {
-                alert('Please type something to hear!');
+                 document.getElementById('textInput').focus();
                 return;
             }
 
@@ -126,7 +130,40 @@
             utterance.voice = voices[36];
 
             speechSynthesis.speak(utterance);
+            getWordDefinitions();
         }
+        
+        const DICTIONARY_API_BASE_URL =
+            'https://api.dictionaryapi.dev/api/v2/entries/en/';
+        const DEFINITIONS_DIV = document.getElementById('definitions');
+
+        const fetchWordDefinitions = async word => {
+            console.log(`Making request for definitions of ${word}...`);
+            const response = await fetch(DICTIONARY_API_BASE_URL + word);
+            const json = await response.json();
+            return json[0].meanings
+                .flatMap(m => m.definitions)
+                .flatMap(d => d.definition);
+        };
+
+        const getWordDefinitions = () => {
+            const word = document.getElementById('textInput').value;
+            if (word == null || word == '') {
+                return alert('Error: You must enter a word to fetch');
+            }
+            DEFINITIONS_DIV.innerHTML = '';
+            fetchWordDefinitions(word)
+                .then(defintions => {
+                    DEFINITIONS_DIV.innerHTML += '<ol>';
+                    defintions.slice(0, 3).forEach(d => {
+                        DEFINITIONS_DIV.innerHTML += `<li>${d}</li>`;
+                    });
+                    DEFINITIONS_DIV.innerHTML += '</ol>';
+                })
+                .catch(_ => {
+                    DEFINITIONS_DIV.innerHTML += `<p>Error: Could not retrive any defintions for ${word}.</p>`;
+                });
+        };
     </script>
 </body>
 
