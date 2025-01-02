@@ -176,7 +176,7 @@
             DEFINITIONS_DIV.innerHTML = '';
             fetchWordDefinitions(word)
                 .then(defintions => {
-                     DEFINITIONS_DIV.innerHTML += '<h5>Meanings of '${word}'</h5>';
+                     DEFINITIONS_DIV.innerHTML += `<h5>Meanings of '${word}'</h5>`;
                     DEFINITIONS_DIV.innerHTML += '<ol>';
                     defintions.slice(0, 3).forEach(d => {
                         DEFINITIONS_DIV.innerHTML += `<li>${d}</li>`;
